@@ -1,0 +1,106 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# VS Code settings and workspace
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# MacOS files
+.DS_Store
+
+# Log files
+logs/
+*.log
+
+# Data files
+data/
+datasets/
+*.csv
+*.json
+*.xlsx
+*.xls
+*.db
+*.sqlite
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.pkl
+
+# Model files
+*.h5
+*.hdf5
+*.pb
+*.pkl
+*.joblib
+*.onnx
+
+# Cache files
+cache/
+*.cache
+*.pyo
+*.pyd
+*.so
+
+# Conda environment files
+*.conda
+*.yml
+*.yaml
+
+# Results and output files
+*.out
+*.svg
+*.png
+*.jpg
+*.jpeg
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Jupyter Notebook outputs
+*.nbconvert.ipynb
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Local configuration files
+config.yaml
+secrets.env
+*.toml
+
+# TensorFlow checkpoints
+checkpoint
+checkpoints/
+*.ckpt
+*.pbtxt
+
+# Pytest cache
+.pytest_cache/
+
+# MyPy cache
+.mypy_cache/
+
+# Cython files
+*.c
+*.cpp
+
+# Other IDE files
+*.sublime-workspace
+*.sublime-project
