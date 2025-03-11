@@ -104,3 +104,5 @@ checkpoints/
 # Other IDE files
 *.sublime-workspace
 *.sublime-project
+
+ressources/
