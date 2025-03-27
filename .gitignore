@@ -106,3 +106,5 @@ checkpoints/
 *.sublime-project
 
 ressources/
+ressources
+datasets
