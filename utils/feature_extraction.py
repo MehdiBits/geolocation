@@ -6,7 +6,7 @@ from numpy import random
 
 class CLIPModelSingleton:
     """
-    Singleton class to load and store a single instance of CLIPModel.
+    Singleton class to load and store a single instance of CLIPModel. This prevents loading multiple time the model.
     """
     _instance = None
 
@@ -20,7 +20,7 @@ class CLIPModelSingleton:
 
 class CLIPProcessorSingleton:
     """
-    Singleton class to load and store a single instance of CLIPProcessor.
+    Singleton class to load and store a single instance of CLIPProcessor. This prevents loading multiple time the processor.
     """
     _instance = None
 
@@ -74,6 +74,36 @@ def extract_clip_features_from_image(image, device=DEVICE):
     
     return features
 
+def rotate_image_symmetry(image, angle):
+    """
+    Rotates an image randomly while maintaining symmetry by extending it through mirroring.
+
+    Args:
+        image (PIL.Image): Input image.
+        angle (float): Rotation angle in degrees.
+
+    Returns:
+        tuple: (Rotated PIL.Image, float angle used for rotation)
+    """
+    width, height = image.size
+
+    extended_image = Image.new("RGB", (width * 3, height * 3))
+    extended_image.paste(image, (width, height))
+    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT), (0, height))
+    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT), (width * 2, height))
+    extended_image.paste(image.transpose(Image.FLIP_TOP_BOTTOM), (width, 0))
+    extended_image.paste(image.transpose(Image.FLIP_TOP_BOTTOM), (width, height * 2))
+    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM), (0, 0))
+    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM), (width * 2, 0))
+    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM), (0, height * 2))
+    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM), (width * 2, height * 2))
+
+    rotated_image = extended_image.rotate(angle, resample=Image.BICUBIC, center=(width * 3 // 2, height * 3 // 2))
+    rotated_image = rotated_image.crop((width, height, width * 2, height * 2))
+
+    return rotated_image
+
+
 def rotate_image_randomly_symmetry(image, max_angle=20):
     """
     Rotates an image randomly while maintaining symmetry by extending it through mirroring.
@@ -85,21 +115,7 @@ def rotate_image_randomly_symmetry(image, max_angle=20):
     Returns:
         tuple: (Rotated PIL.Image, int angle used for rotation)
     """
-    width, height = image.size
-    extended_image = Image.new("RGB", (width * 3, height * 3))
-
-    extended_image.paste(image, (width, height))
-    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT), (0, height))
-    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT), (width * 2, height))
-    extended_image.paste(image.transpose(Image.FLIP_TOP_BOTTOM), (width, 0))
-    extended_image.paste(image.transpose(Image.FLIP_TOP_BOTTOM), (width, height * 2))
-    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM), (0, 0))
-    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM), (width * 2, 0))
-    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM), (0, height * 2))
-    extended_image.paste(image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM), (width * 2, height * 2))
-
     angle = random.randint(-max_angle, max_angle)
-    rotated_image = extended_image.rotate(angle, resample=Image.BICUBIC, center=(width * 3 // 2, height * 3 // 2))
-    rotated_image = rotated_image.crop((width, height, width * 2, height * 2))
+    rotated_image = rotate_image_symmetry(image, angle)
 
     return rotated_image, angle
