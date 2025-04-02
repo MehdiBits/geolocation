@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
+from matplotlib.path import Path
+from sklearn.mixture import GaussianMixture
+import matplotlib.pyplot as plt
 
 def haversine(lat1, lon1, lat2, lon2):
     """
@@ -56,6 +59,79 @@ def find_most_similar_within_indices(target_feature, target_indices, precomputed
             best_similarity = similarities[most_similar_index]
             best_img_id = filtered_img_ids[most_similar_index]
     return (best_img_id, best_similarity) if best_img_id else ("No match", 0)
+
+
+
+def find_most_similar_in_contour(target_feature, precomputed_df, precomputed_features, contour_paths):
+    """
+    Finds the most visually similar image within the contour-defined region.
+
+    Args:
+        target_feature (np.array): Feature vector of the input image.
+        precomputed_df (pd.DataFrame): Metadata of precomputed images (must contain 'latitude' and 'longitude').
+        precomputed_features (np.array): Feature vectors of precomputed images.
+        contour_paths (list): List of Matplotlib Path objects defining the region.
+
+    Returns:
+        (str, float): Most similar image ID and similarity score.
+    """
+    if not contour_paths:
+        return "No match", 0
+
+    # Convert LAT/LON to NumPy array for vectorized processing
+    points = np.column_stack((precomputed_df['LAT'].values, precomputed_df['LON'].values))  # (N, 2)
+
+    # Vectorized check: Find points inside the contour
+    inside_mask = contour_paths.contains_points(points)
+
+    if not np.any(inside_mask):  # No images inside the contour
+        return "No match", 0
+
+    # Filter data based on the mask
+    filtered_features = precomputed_features[inside_mask]
+    filtered_img_ids = precomputed_df['IMG_ID'].values[inside_mask]
+
+    # Compute cosine similarity in a vectorized way
+    similarities = cosine_similarity(target_feature.reshape(1, -1), filtered_features)[0]
+    most_similar_index = np.argmax(similarities)
+
+    return filtered_img_ids[most_similar_index], similarities[most_similar_index]
+
+def interest_zones(gps_cord, gmm_n=3, percentile=95, grid_npoints=200):
+    """
+    Identifies areas of interest based on GPS coordinates using Gaussian Mixture Models (GMM).
+
+    Parameters:
+        gps_cord (array-like): A list or array of GPS coordinates, where each entry is a tuple or list 
+                            containing latitude and longitude values.
+        gmm_n (int, optional): The number of components for the Gaussian Mixture Model. Default is 3.
+        percentile (float): The percentile value used to determine the contour level for the areas of interest.
+        grid_npoints (int, optional): The number of points to use for the grid in each dimension. Default is 200.
+
+    Returns:
+        matplotlib.path.Path: A path object representing the contour of the area of interest.
+    """
+    df = pd.DataFrame(gps_cord, columns=["latitude", "longitude"])
+
+    min_lat, max_lat = np.percentile(df['latitude'], 1), np.percentile(df['latitude'], 99)
+    min_lon, max_lon = np.percentile(df['longitude'], 1), np.percentile(df['longitude'], 99)
+
+    X = df[["longitude", "latitude"]].values
+    gmm = GaussianMixture(n_components=gmm_n, covariance_type='full', random_state=42)
+    gmm.fit(X)
+
+    latitudes = np.linspace(min_lat, max_lat, grid_npoints)
+    longitudes = np.linspace(min_lon, max_lon, grid_npoints)
+    grid_lat, grid_lon = np.meshgrid(latitudes, longitudes)
+    grid_points = np.vstack([grid_lon.ravel(), grid_lat.ravel()]).T
+
+    grid_probs = np.exp(gmm.score_samples(grid_points))
+
+    contour = plt.contour(grid_lat, grid_lon, grid_probs.reshape(grid_npoints, grid_npoints), levels=[np.percentile(grid_probs, percentile)])
+
+    paths = contour.get_paths()[0]
+    
+    return paths
 
 def generate_geolocation_csv(results_df, index_file, ground_truth_file, output_file):
     """
