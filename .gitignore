@@ -108,3 +108,8 @@ checkpoints/
 ressources/
 ressources
 datasets
+src/geolocation.egg-info/dependency_links.txt
+.gitignore
+src/geolocation.egg-info/SOURCES.txt
+src/geolocation.egg-info/top_level.txt
+src/geolocation.egg-info/PKG-INFO

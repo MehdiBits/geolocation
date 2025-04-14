@@ -1,8 +1,9 @@
 import torch
 from PIL import Image
 from transformers import CLIPProcessor, CLIPModel
-from geolocation.config import DEVICE
 from numpy import random
+
+from config import DEVICE
 
 class CLIPModelSingleton:
     """
