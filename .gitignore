@@ -83,7 +83,6 @@ cache/
 # Local configuration files
 config.yaml
 secrets.env
-*.toml
 
 # TensorFlow checkpoints
 checkpoint
