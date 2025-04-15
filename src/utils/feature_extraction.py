@@ -29,7 +29,7 @@ class CLIPProcessorSingleton:
         if cls._instance is None:
             print("Loading CLIP processor...")
             cls._instance = super(CLIPProcessorSingleton, cls).__new__(cls)
-            cls._instance.processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+            cls._instance.processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14", do_rescale=False)
         return cls._instance
 
 def extract_clip_features(image_path, device=DEVICE):

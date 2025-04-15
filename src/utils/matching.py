@@ -40,7 +40,7 @@ def find_most_similar_within_indices(target_feature, target_indices, precomputed
     """
     best_similarity = -1
     best_img_id = None
-
+   
     for target_index in target_indices:
         # Filter dataset to images in the predicted cells
         filter_mask = (precomputed_df['CellId_int'] == target_index)
@@ -51,7 +51,6 @@ def find_most_similar_within_indices(target_feature, target_indices, precomputed
             continue  # Skip if no images in this cell
 
         # Compute cosine similarity
-        
         similarities = cosine_similarity(target_feature, filtered_features)[0]
         most_similar_index = np.argmax(similarities)
 
