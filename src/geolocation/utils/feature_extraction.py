@@ -3,7 +3,7 @@ from PIL import Image
 from transformers import CLIPProcessor, CLIPModel
 from numpy import random
 
-from config import DEVICE
+from geolocation.config import DEVICE
 
 class CLIPModelSingleton:
     """

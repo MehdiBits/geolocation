@@ -2,8 +2,8 @@ from torch.utils.data import Dataset
 from PIL import Image
 import os
 
-from utils.feature_extraction import extract_clip_features_from_image
-from config import DEVICE
+from geolocation.utils.feature_extraction import extract_clip_features_from_image
+from geolocation.config import DEVICE
 
 class ImageDataset(Dataset):
     """

@@ -6,11 +6,11 @@ import argparse
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-from config import *
-from models.classifier import ImprovedClassifier
-from utils.feature_extraction import extract_clip_features_from_image
-from utils.matching import find_most_similar_within_indices, generate_geolocation_csv
-from utils.datasets import EmbeddingDataset
+from geolocation.config import *
+from geolocation.models.classifier import ImprovedClassifier
+from geolocation.utils.feature_extraction import extract_clip_features_from_image
+from geolocation.utils.matching import find_most_similar_within_indices, generate_geolocation_csv
+from geolocation.utils.datasets import EmbeddingDataset
 
 def process_images(image_dir_path, output_folder, coordinates_file, device, batch_size=16, model_path=MODEL_PATH):
     # Load model
