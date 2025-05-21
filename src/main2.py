@@ -12,12 +12,13 @@ from utils.feature_extraction import extract_clip_features_from_image
 from utils.matching import find_most_similar_within_indices, generate_geolocation_csv
 from utils.datasets import EmbeddingDataset
 
-def process_images(image_dir_path, output_folder, coordinates_file, device, batch_size=16):
+def process_images(image_dir_path, output_folder, coordinates_file, device, batch_size=16, model_path=MODEL_PATH):
     # Load model
     classifier = ImprovedClassifier(INPUT_DIM, NUM_CLASSES).to(device)
-    classifier.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+    classifier.load_state_dict(torch.load(model_path, map_location=device))
     classifier.eval()
-
+    print(f"Model loaded from {model_path}")
+    print('----------------------')
     # Load features and metadata
     precomputed_features = np.load(PRECOMPUTED_FEATURES_PATH)
     precomputed_df = pd.read_csv(PRECOMPUTED_METADATA_PATH)
@@ -69,10 +70,11 @@ def parse_args():
     parser.add_argument('coordinates_file', type=str, help="Path to the true coordinates file")
     parser.add_argument('--device', type=str, choices=['cpu', 'cuda', 'mps'], help="Device for processing (default: fetch from config)")
     parser.add_argument('--batch_size', type=int, default=16, help="Batch size for image processing")
+    parser.add_argument('--model_path', type=str, default=MODEL_PATH, help="Path to the model weights")
 
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_args()
     device = args.device if args.device else DEVICE
-    process_images(args.image_dir, args.output_dir, args.coordinates_file, device, batch_size=args.batch_size)
+    process_images(args.image_dir, args.output_dir, args.coordinates_file, device, batch_size=args.batch_size, model_path=args.model_path)
