@@ -5,6 +5,7 @@ import numpy as np
 import argparse
 from torch.utils.data import DataLoader
 from torchvision import transforms
+import importlib.resources
 
 from geolocation.config import *
 from geolocation.models.classifier import ImprovedClassifier
@@ -14,14 +15,19 @@ from geolocation.utils.datasets import EmbeddingDataset
 
 def process_images(image_dir_path, output_folder, coordinates_file, device, batch_size=16, model_path=MODEL_PATH):
     # Load model
-    classifier = ImprovedClassifier(INPUT_DIM, NUM_CLASSES).to(device)
-    classifier.load_state_dict(torch.load(model_path, map_location=device))
+    model = torch.load(model_path, map_location=device) 
+    num_classes = model['fc4.bias'].shape[0]
+    classifier = ImprovedClassifier(INPUT_DIM, num_classes).to(device)
+    classifier.load_state_dict(model)
     classifier.eval()
     print(f"Model loaded from {model_path}")
     print('----------------------')
     # Load features and metadata
-    precomputed_features = np.load(PRECOMPUTED_FEATURES_PATH)
-    precomputed_df = pd.read_csv(PRECOMPUTED_METADATA_PATH)
+    with importlib.resources.path("geolocation.ressources", PRECOMPUTED_FEATURES_PATH) as path:
+        precomputed_features = np.load(path)
+    with importlib.resources.path("geolocation.ressources", PRECOMPUTED_METADATA_PATH) as path:
+        precomputed_df = pd.read_csv(path)
+    
 
     # Setup dataset and dataloader
     transform = transforms.Compose([

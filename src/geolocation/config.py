@@ -13,5 +13,5 @@ INPUT_DIM = 768      # Feature vector dimension from CLIP
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 MODEL_PATH = "geolocation/src/geolocation/ressources/no_std_14-10(lvl8).pth"  # Path to classifier weights
-PRECOMPUTED_FEATURES_PATH = "geolocation/src/geolocation/ressources/all_features_from_batches(concat).npy"
-PRECOMPUTED_METADATA_PATH = "geolocation/src/geolocation/ressources/index_14-10.csv"
+PRECOMPUTED_FEATURES_PATH = "all_features_from_batches(concat).npy"
+PRECOMPUTED_METADATA_PATH = "index_14-10.csv"
