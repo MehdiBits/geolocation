@@ -11,8 +11,17 @@ This research project focuses on geolocating images. The goal is, from a single 
 
 ## Installation
 
-You can install this repo using the following:
+You can install this repo using one the following:
 
+### (Recommended) Using uv
+
+```bash
+git clone https://github.com/MehdiBits/geolocation.git
+cd geolocation
+uv pip install -e .
+```
+
+### Wihtout uv
 ```bash
 git clone https://github.com/MehdiBits/geolocation.git
 cd geolocation
@@ -22,16 +31,29 @@ pip install -e .
 ## Usage
 To directly use the model, provided you have a checkpoint, you can directly use the following:
 
-```
-python -m geolocation/src/main.py --input path/to/image_folder --output path/to/output.csv
+### (Recommended) Using uv
+```bash
+uv run src/geolocation/main2.py path/to/image_folder path/to/output.csv
 ```
 
-This will output a csv file containing two columns, one being the image name and the other the predicted angle.
+### Wihtout uv
+```
+python -m geolocation/src/main2.py --input path/to/image_folder --output path/to/output.csv
+```
 
-A trained checkpoint is available to [download](https://drive.google.com/file/d/1myCTKFY4jt1xVDdf0EM2H3Vt0TCKVS5W/view?usp=drive_link), it needs to then be refered to in the config.py file.
+This will output a csv file containing three columns, one being the image name and the two others the predicted latitude and longitude of the image.
+
+A few optional parameters exists:
+
+* --device: Specify which device is used, currently supported devices are "cpu", "cuda" or "mps".
+* --batch_size: Size of the batch processed at the same time by the algorithm.
+* --model_path: Path to the model used by the neural network classifier.
+* --coordinates_file: Csv file containing the real coordinates of the images, mainly used to benchmark the method.
+
+A trained checkpoint is available to [download](https://drive.google.com/file/d/1myCTKFY4jt1xVDdf0EM2H3Vt0TCKVS5W/view?usp=drive_link), it needs to then be refered to in the config.py file or be passed with the --model_path argument.
 
 ## Features
-- Rotation Angle Prediction: Uses a Convolutional Neural Network based on EfficientNet-B3 to predict the rotation angle of an image.
-- Regression Output: The CNN outputs two numbers representing the sine and cosine of the angle, encapsulating the periodic nature of angles.
-- The default model was specifically trained to handle rotation angle ranging from $[-30°, 30°]$.
+- Uses a neural network for rough prediction of geolocation which is then refined using a database of images giving (lat, lon) prediction.
+-  The method is lightweight, capable of predicting high numbers of images in a short amount of time.
+- Accuracy varies on the dataset but a high accuracy is reached for localizable images.
 
