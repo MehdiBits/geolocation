@@ -132,17 +132,16 @@ def interest_zones(gps_cord, gmm_n=3, percentile=95, grid_npoints=200):
     
     return paths
 
-def generate_geolocation_csv(results_df, index_file, ground_truth_file, output_file):
+def generate_geolocation_csv(results_df, index_file, output_file, ground_truth_file=None):
     """
-    Generate a CSV with estimated and actual geolocation data along with distance.
+    Generate a CSV with estimated and, if querried, actual geolocation data along with distance.
     
     Args:
         results_df (pd.DataFrame): Dataframe containing input images and their best match.
         index_file (str): Path to CSV file with geolocation data for matched images.
-        ground_truth_file (str): Path to CSV file with true locations of input images.
         output_file (str): Path to save the final CSV.
+        ground_truth_file (str, optional): Path to CSV file with true locations of input images. Defaults to None.
     """
-    # Load database geolocation data
     db_locations = pd.read_csv(index_file)[['IMG_ID', 'LAT', 'LON']]
     
     # Merge to get estimated geolocation (from best match in database)
@@ -150,21 +149,23 @@ def generate_geolocation_csv(results_df, index_file, ground_truth_file, output_f
     merged_df.rename(columns={'LAT': 'est_LAT', 'LON': 'est_LON'}, inplace=True)
     merged_df.drop(columns=['IMG_ID'], inplace=True)
     
-    # Load ground truth locations for input images
-    gt_locations = pd.read_csv(ground_truth_file)[['IMG_ID', 'LAT', 'LON']]
+    if ground_truth_file is None:
+        gt_locations = pd.read_csv(ground_truth_file)[['IMG_ID', 'LAT', 'LON']]
+        # Merge to get actual geolocation of input images
+        merged_df = merged_df.merge(gt_locations, left_on='image', right_on='IMG_ID', how='left')
+        merged_df.rename(columns={'LAT': 'true_LAT', 'LON': 'true_LON'}, inplace=True)
+        merged_df.drop(columns=['IMG_ID'], inplace=True)
+        
+        
+        merged_df['distance_km'] = merged_df.apply(
+            lambda row: haversine(row['true_LAT'], row['true_LON'], row['est_LAT'], row['est_LON']), axis=1
+        )
+        
+        
+        merged_df[['image', 'est_LAT', 'est_LON', 'true_LAT', 'true_LON', 'distance_km']].to_csv(output_file, index=False)
+        print(f"CSV file saved: {output_file}")
+    else:
+        merged_df[['image', 'est_LAT', 'est_LON', 'true_LAT', 'true_LON', 'distance_km']].to_csv(output_file, index=False)
+        print(f"CSV file saved: {output_file}")
     
-    # Merge to get actual geolocation of input images
-    merged_df = merged_df.merge(gt_locations, left_on='image', right_on='IMG_ID', how='left')
-    merged_df.rename(columns={'LAT': 'true_LAT', 'LON': 'true_LON'}, inplace=True)
-    merged_df.drop(columns=['IMG_ID'], inplace=True)
-    
-    # Compute distance
-    merged_df['distance_km'] = merged_df.apply(
-        lambda row: haversine(row['true_LAT'], row['true_LON'], row['est_LAT'], row['est_LON']), axis=1
-    )
-    
-    # Save to CSV
-    merged_df[['image', 'est_LAT', 'est_LON', 'true_LAT', 'true_LON', 'distance_km']].to_csv(output_file, index=False)
-    print(f"CSV file saved: {output_file}")
-    
-    return merged_df
+    return 

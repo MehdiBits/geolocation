@@ -10,7 +10,7 @@ from utils.matching import find_most_similar_within_indices, generate_geolocatio
 
 
 def process_images(image_dir_path, output_folder, device):
-    # CERTH model
+    # Loading model
     classifier = ImprovedClassifier(INPUT_DIM, NUM_CLASSES).to(device)
     classifier.load_state_dict(torch.load(MODEL_PATH, map_location=device))
     classifier.eval()
@@ -47,7 +47,7 @@ def process_images(image_dir_path, output_folder, device):
     pd.DataFrame(results).to_csv(result_file_path, index=False)
 
     geolocation_file_path = os.path.join(output_folder, f'geolocation_results_{os.path.basename(image_dir_path)}.csv')
-    generate_geolocation_csv(results, PRECOMPUTED_METADATA_PATH, 'ressources/image_coordinates_im2_gps2k.csv', geolocation_file_path)
+    generate_geolocation_csv(results, PRECOMPUTED_METADATA_PATH, geolocation_file_path, ground_truth_file='ressources/image_coordinates_im2_gps2k.csv')
 
     print(f"Results saved in {output_folder}")
 
