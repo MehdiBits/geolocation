@@ -29,7 +29,7 @@ pip install -e .
 ```
 
 ## Usage
-To directly use the model, provided you have a checkpoint, you can directly use the following:
+To directly use the model, provided you have a checkpoint, the precomputed features and the metadata, you can directly use the following:
 
 ### (Recommended) Using uv
 ```bash
@@ -50,7 +50,8 @@ A few optional parameters exists:
 * --model_path: Path to the model used by the neural network classifier.
 * --coordinates_file: Csv file containing the real coordinates of the images, mainly used to benchmark the method.
 
-A trained checkpoint is available to [download](https://drive.google.com/file/d/1myCTKFY4jt1xVDdf0EM2H3Vt0TCKVS5W/view?usp=drive_link), it needs to then be refered to in the config.py file or be passed with the --model_path argument.
+
+A trained checkpoint along with precomputed features and the metadata are available to [download](https://zenodo.org/records/15593465), they need to then be refered to in the config.py file or, in the case of the model path, be passed with the --model_path argument.
 
 ## Features
 - Uses a neural network for rough prediction of geolocation which is then refined using a database of images giving (lat, lon) prediction.
