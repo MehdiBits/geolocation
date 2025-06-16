@@ -149,7 +149,7 @@ def generate_geolocation_csv(results_df, index_file, output_file, ground_truth_f
     merged_df.rename(columns={'LAT': 'est_LAT', 'LON': 'est_LON'}, inplace=True)
     merged_df.drop(columns=['IMG_ID'], inplace=True)
     
-    if ground_truth_file is None:
+    if ground_truth_file is not None:
         gt_locations = pd.read_csv(ground_truth_file)[['IMG_ID', 'LAT', 'LON']]
         # Merge to get actual geolocation of input images
         merged_df = merged_df.merge(gt_locations, left_on='image', right_on='IMG_ID', how='left')

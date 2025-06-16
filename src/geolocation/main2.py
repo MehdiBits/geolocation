@@ -14,8 +14,26 @@ from geolocation.utils.matching import find_most_similar_within_indices, generat
 from geolocation.utils.datasets import EmbeddingDataset
 
 def process_images(image_dir_path, output_folder, coordinates_file, device, batch_size=16, model_path=MODEL_PATH):
+    """
+    Process images in the specified directory, classify them using a pre-trained model,
+    and find the most similar images in a precomputed database. Generate a CSV file 
+    with the geolocation results for each image. If a coordinates file is provided,
+    it will also include the true coordinates for comparison.
+
+    Args:
+        image_dir_path (str): Path to the directory containing images to process.
+        output_folder (str): Directory where results will be saved.
+        coordinates_file (str): Path to the file containing true coordinates for geolocation. Optional, default is None.
+        device (str): Device to run the model on ('cpu', 'cuda', or 'mps'). O
+        batch_size (int): Number of images to process in each batch.
+        model_path (str): Path to the pre-trained model weights.
+    """
+        
     # Load model
-    model = torch.load(model_path, map_location=device) 
+    try:
+        model = torch.load(model_path, map_location=device) 
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Model file not found at {model_path}, please specify a valid path in either the CONFIG.PY file or pass it as an argument.")
     num_classes = model['fc4.bias'].shape[0]
     classifier = ImprovedClassifier(INPUT_DIM, num_classes).to(device)
     classifier.load_state_dict(model)
@@ -24,10 +42,16 @@ def process_images(image_dir_path, output_folder, coordinates_file, device, batc
     print('----------------------')
     # Load features and metadata
     with importlib.resources.path("geolocation.ressources", PRECOMPUTED_FEATURES_PATH) as path:
-        precomputed_features = np.load(path)
+        try:
+            precomputed_features = np.load(path)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Precomputed features file not found at {path}, please specify a valid path in the CONFIG.PY file.")
     with importlib.resources.path("geolocation.ressources", PRECOMPUTED_METADATA_PATH) as path:
-        precomputed_df = pd.read_csv(path)
-    
+        try:
+            precomputed_df = pd.read_csv(path)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Precomputed metadata file not found at {path}, please specify a valid path in the CONFIG.PY file.")
+
 
     # Setup dataset and dataloader
     transform = transforms.Compose([
