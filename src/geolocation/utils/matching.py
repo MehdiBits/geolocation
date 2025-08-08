@@ -168,4 +168,6 @@ def generate_geolocation_csv(results_df, index_file, output_file, ground_truth_f
         merged_df[['image', 'est_LAT', 'est_LON', 'true_LAT', 'true_LON', 'distance_km']].to_csv(output_file, index=False)
         print(f"CSV file saved: {output_file}")
     
-    return 
+        return merged_df[['image', 'est_LAT', 'est_LON', 'true_LAT', 'true_LON', 'distance_km']]
+    return merged_df
+

@@ -4,6 +4,7 @@ import os
 
 from geolocation.utils.feature_extraction import extract_clip_features_from_image
 from geolocation.config import DEVICE
+import torchvision.transforms as T
 
 class ImageDataset(Dataset):
     """
@@ -58,7 +59,8 @@ class EmbeddingDataset(Dataset):
             for img in os.listdir(image_dir) 
             if img.lower().endswith((".jpg", ".png", ".jpeg"))
         ]
-        self.transform = transform
+        self.transform = transform or T.Compose([T.ToTensor()])
+
         self.device = device
 
     def __len__(self):

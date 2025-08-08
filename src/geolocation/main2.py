@@ -88,11 +88,13 @@ def process_images(image_dir_path, output_folder, coordinates_file, device, batc
     os.makedirs(output_folder, exist_ok=True)
     result_file_path = os.path.join(output_folder, f'predictions_{os.path.basename(image_dir_path)}.csv')
     pd.DataFrame(results).to_csv(result_file_path, index=False)
-
-    geolocation_file_path = os.path.join(output_folder, f'geolocation_results_{os.path.basename(image_dir_path)}.csv')
-    generate_geolocation_csv(pd.DataFrame(results), PRECOMPUTED_METADATA_PATH, geolocation_file_path, ground_truth_file=coordinates_file)
+    with importlib.resources.path("geolocation.ressources", PRECOMPUTED_METADATA_PATH) as path:
+        geolocation_file_path = os.path.join(output_folder, f'geolocation_results_{os.path.basename(image_dir_path)}.csv')
+        geolocation_results = generate_geolocation_csv(pd.DataFrame(results), path, geolocation_file_path, ground_truth_file=coordinates_file)
 
     print(f"Results saved in {output_folder}")
+
+    return geolocation_results
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Image processing with classification and geolocation matching")
