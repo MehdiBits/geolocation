@@ -12,6 +12,7 @@ from geolocation.models.classifier import ImprovedClassifier
 from geolocation.utils.feature_extraction import extract_clip_features_from_image
 from geolocation.utils.matching import find_most_similar_within_indices, generate_geolocation_csv
 from geolocation.utils.datasets import EmbeddingDataset
+from geolocation.utils.metrics import kl_to_uniform
 
 def process_images(image_dir_path, output_folder, coordinates_file, device, batch_size=16, model_path=MODEL_PATH):
     """
@@ -66,6 +67,8 @@ def process_images(image_dir_path, output_folder, coordinates_file, device, batc
         
         # Predict with classifier
         outputs = classifier(embeddings)
+        # Compute the KL divergence of the density prob wrt the uniform distribution.
+        cross_entropy = kl_to_uniform(outputs)
         predictions = torch.nn.functional.softmax(outputs, dim=1)
         top3_indices_batch = torch.topk(predictions, k=3, dim=1).indices.tolist()
 
@@ -81,7 +84,8 @@ def process_images(image_dir_path, output_folder, coordinates_file, device, batc
             results.append({
                 'image': image_names[i],
                 'matched_image': best_img_id,
-                'similarity': similarity_score
+                'similarity': similarity_score,
+                'cross_entropy': cross_entropy[i]
             })
 
     # Save results
